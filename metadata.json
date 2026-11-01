@@ -1,0 +1,6 @@
+{
+  "name": "Vocal Vantage Secure Assessment Gateway",
+  "description": "Interactive live-proctored examination dashboard for IELTS A1 Life Skills mock tests featuring module countdown timers, clean candidate stage, and real-time instructor marking rubric.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
