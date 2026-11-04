@@ -1,315 +1,346 @@
-import { ModuleMarkingGroup, ModuleA1Assessment } from '../types';
+import { ListeningSection, SectionAssessment } from '../types';
 
-export const INITIAL_A1_MODULE_ASSESSMENTS: ModuleA1Assessment[] = [
-  {
-    moduleId: 1,
-    moduleName: 'Module 1 Assessment: Personal Identification & Daily Life',
-    allocatedTime: '15 Minutes',
-    criteria: [
-      {
-        id: 'obtaining',
-        name: 'Obtaining Information',
-        subdesc: 'Understanding questions/instructions',
-        score: 4,
-      },
-      {
-        id: 'conveying',
-        name: 'Conveying Information',
-        subdesc: 'Sharing basic facts, feelings, opinions',
-        score: 4,
-      },
-      {
-        id: 'speaking',
-        name: 'Speaking to Communicate',
-        subdesc: 'Clarity, pronunciation, basic vocabulary',
-        score: 4,
-      },
-      {
-        id: 'discussion',
-        name: 'Engaging in Discussion',
-        subdesc: 'Interacting, keeping the conversation going',
-        score: 4,
-      },
-    ],
-  },
-  {
-    moduleId: 2,
-    moduleName: 'Module 2 Assessment: Eliciting Information',
-    allocatedTime: '15 Minutes',
-    criteria: [
-      {
-        id: 'obtaining',
-        name: 'Obtaining Information',
-        subdesc: 'Understanding questions/instructions',
-        score: 4,
-      },
-      {
-        id: 'conveying',
-        name: 'Conveying Information',
-        subdesc: 'Sharing basic facts, feelings, opinions',
-        score: 4,
-      },
-      {
-        id: 'speaking',
-        name: 'Speaking to Communicate',
-        subdesc: 'Clarity, pronunciation, basic vocabulary',
-        score: 3,
-      },
-      {
-        id: 'discussion',
-        name: 'Engaging in Discussion',
-        subdesc: 'Interacting, keeping the conversation going',
-        score: 4,
-      },
-    ],
-  },
-  {
-    moduleId: 3,
-    moduleName: 'Module 3 Assessment: Extended Interactive Discussion',
-    allocatedTime: '30 Minutes',
-    criteria: [
-      {
-        id: 'obtaining',
-        name: 'Obtaining Information',
-        subdesc: 'Understanding questions/instructions',
-        score: 4,
-      },
-      {
-        id: 'conveying',
-        name: 'Conveying Information',
-        subdesc: 'Sharing basic facts, feelings, opinions',
-        score: 4,
-      },
-      {
-        id: 'speaking',
-        name: 'Speaking to Communicate',
-        subdesc: 'Clarity, pronunciation, basic vocabulary',
-        score: 4,
-      },
-      {
-        id: 'discussion',
-        name: 'Engaging in Discussion',
-        subdesc: 'Interacting, keeping the conversation going',
-        score: 4,
-      },
-    ],
-  },
-];
-
-export interface ModuleContent {
-  id: number;
-  title: string;
-  durationLabel: string;
-  defaultSeconds: number;
-  description: string;
-}
-
-export const EXAM_MODULES: ModuleContent[] = [
+export const LISTENING_SECTIONS: ListeningSection[] = [
   {
     id: 1,
-    title: 'Module 1: Personal Identification & Daily Life',
-    durationLabel: '15:00',
-    defaultSeconds: 900,
-    description: 'Candidate introduction, spelling first name, living environment, daily routine, and Sunday leisure habits.'
+    title: 'Section 1',
+    topic: 'Family, Home and Daily Routine',
+    audioPath: '/assets/aistudio/section-1_0fdea148.mp3',
+    audioFilename: 'section-1.mp3',
+    recordingFileRef: 'section-1_0fdea148.mp3',
+    description: "Listen to the recording about Mark's family, new home, children, and daily family routine, then answer the questions below.",
+    questions: [
+      {
+        id: 's1-q1',
+        number: '01',
+        question: "Why did Mark's family move to a new house?",
+        targetFocus: 'Reason for relocation / family need',
+      },
+      {
+        id: 's1-q2',
+        number: '02',
+        question: 'How many bedrooms does the new house have?',
+        targetFocus: 'Numerical detail / house feature',
+      },
+      {
+        id: 's1-q3',
+        number: '03',
+        question: 'How many children does Mark have?',
+        targetFocus: 'Family structure / number',
+      },
+      {
+        id: 's1-q4',
+        number: '04',
+        question: "How old is Mark's son?",
+        targetFocus: 'Age recognition',
+      },
+      {
+        id: 's1-q5',
+        number: '05',
+        question: "When does Mark's mother usually visit?",
+        targetFocus: 'Frequency & routine timing',
+      },
+    ],
   },
   {
     id: 2,
-    title: 'Module 2: Eliciting Information',
-    durationLabel: '15:00',
-    defaultSeconds: 900,
-    description: 'Candidate asks examiner questions about planning a weekend trip, followed by a 10-minute continuous conversational discussion on travel.'
+    title: 'Section 2',
+    topic: "Making a Doctor's Appointment",
+    audioPath: '/assets/aistudio/section2_67b5eeda.mp3',
+    audioFilename: 'section2.mp3',
+    recordingFileRef: 'section2_67b5eeda.mp3',
+    description: "Listen to the conversation at the doctor's clinic reception regarding booking a consultation, then answer the questions below.",
+    questions: [
+      {
+        id: 's2-q1',
+        number: '01',
+        question: 'Why does David want to visit the doctor?',
+        targetFocus: 'Medical visit reason / symptoms',
+      },
+      {
+        id: 's2-q2',
+        number: '02',
+        question: "What is David's surname?",
+        targetFocus: 'Name spelling / family name',
+      },
+      {
+        id: 's2-q3',
+        number: '03',
+        question: 'Which doctor does David prefer to see?',
+        targetFocus: 'Doctor name / medical preference',
+      },
+      {
+        id: 's2-q4',
+        number: '04',
+        question: 'What time is the appointment tomorrow?',
+        targetFocus: 'Appointment time / clock detail',
+      },
+      {
+        id: 's2-q5',
+        number: '05',
+        question: 'What should David bring with him?',
+        targetFocus: 'Required documents / identification',
+      },
+    ],
   },
   {
     id: 3,
-    title: 'Module 3: Extended Interactive Discussion',
-    durationLabel: '30:00',
-    defaultSeconds: 1800,
-    description: 'Collaborative extended discussion on Technology, Hobbies, and Communication to test fluency, opinion sharing, and reciprocal conversation.'
-  }
-];
-
-export const MODULE_1_QUESTIONS = [
-  {
-    id: 'm1-q1',
-    number: '01',
-    question: 'Could you tell me your full name, and spell your first name for me?',
-    examinerNote: 'Assess clear alphabet spelling, vowel phonetics (A, E, I), and consonant discrimination.'
-  },
-  {
-    id: 'm1-q2',
-    number: '02',
-    question: 'Tell me about the place where you live right now.',
-    examinerNote: 'Check descriptive vocabulary (flat, house, quiet area, city centre, amenities).'
-  },
-  {
-    id: 'm1-q3',
-    number: '03',
-    question: 'Describe your daily routine from the moment you wake up.',
-    examinerNote: 'Assess simple present tense consistency, time adverbs (at 7 AM, then, after that).'
-  },
-  {
-    id: 'm1-q4',
-    number: '04',
-    question: 'What do you usually do on a Sunday morning, and who do you spend it with?',
-    examinerNote: 'Look for leisure verbs, prepositions with people (with my family/friends), and habit frequency.'
-  }
-];
-
-export const MODULE_2_DATA = {
-  candidateTaskPrompt: 'I am your neighbor. I want you to act like a neighbor and ask me questions about our neighborhood, local services, and living next door.',
-  promptCues: [
-    { word: 'Where', hint: 'Nearest supermarket, grocery store, chemist' },
-    { word: 'When', hint: 'Rubbish & recycling bin collection days' },
-    { word: 'Is there', hint: "Doctor's clinic, park, or pharmacy nearby" },
-    { word: 'How', hint: 'Bus / train into town centre, local parking' },
-    { word: 'What time', hint: 'Local shops open and close' },
-    { word: 'Is it quiet', hint: 'Evening noise levels, neighborhood atmosphere' }
-  ],
-  sampleNeighborQuestions: [
-    'Where is the nearest supermarket or grocery shop?',
-    'What days is the rubbish bin collected on our street?',
-    'Is there a bus stop or train station close by?',
-    'Is this neighborhood usually quiet in the evenings?'
-  ],
-  subsectionBTopic: 'Some people prefer staying at home to relax on weekends, while others like going out to meet people or do activities.',
-  subsectionBGuidance: 'A 5–7 minute continuous interactive conversation is carried out in Subsection B on this topic — engage in natural back-and-forth discussion about weekend habits and preferences rather than isolated question-and-answers.'
-};
-
-export const MODULE_3_DATA = {
-  masterSeconds: 1800, // 30 mins
-  theme: 'Technology, Hobbies, and Communication',
-  talkingPoints: [
-    {
-      id: 'm3-q1',
-      number: '01',
-      question: "Let's talk about how we communicate today. How often do you use your mobile phone, and what do you use it for?",
-      cue: 'Messaging apps (WhatsApp), calling relatives, social media, work vs casual'
-    },
-    {
-      id: 'm3-q2',
-      number: '02',
-      question: 'Do you think people spend too much time on the internet?',
-      cue: 'Screen time habits, benefits of staying connected vs distractions'
-    },
-    {
-      id: 'm3-q3',
-      number: '03',
-      question: 'What are your favorite hobbies, and how did you start doing them?',
-      cue: 'Sports, cooking, music, reading, how long they have practiced it'
-    },
-    {
-      id: 'm3-q4',
-      number: '04',
-      question: 'How do you think technology will change the way we work in the future?',
-      cue: 'Working from home, online meetings, artificial intelligence, automated tools'
-    }
-  ]
-};
-
-export const INITIAL_MODULE_MARKING: ModuleMarkingGroup[] = [
-  {
-    moduleId: 1,
-    moduleTitle: 'Module 1: Personal Identification & Daily Life',
-    allocatedTime: '15 Minutes',
-    aspects: [
+    title: 'Section 3',
+    topic: 'Renting a House and the Neighbourhood',
+    audioPath: '/assets/aistudio/section3_d4b7b764.mp3',
+    audioFilename: 'section3.mp3',
+    recordingFileRef: 'section3_d4b7b764.mp3',
+    description: 'Listen to Hassan and Ali discussing house rental options, neighbourhood amenities, schools, transport, and visits, then answer the questions below.',
+    questions: [
       {
-        id: 'm1_spelling',
-        name: 'Full Name & Letter-by-Letter Spelling',
-        shortDesc: 'Vowel discrimination (A, E, I) and clear alphabet naming',
-        score: 4,
+        id: 's3-q1',
+        number: '01',
+        question: 'How long has Hassan lived in the neighbourhood?',
+        targetFocus: 'Duration of residency',
       },
       {
-        id: 'm1_living',
-        name: 'Living Environment Description',
-        shortDesc: 'Vocabulary for flat/house, area characteristics, and amenities',
-        score: 4,
+        id: 's3-q2',
+        number: '02',
+        question: 'How many bedrooms does Ali need?',
+        targetFocus: 'Accommodation requirement',
       },
       {
-        id: 'm1_routine',
-        name: 'Daily Routine Sequence & Simple Present',
-        shortDesc: 'Time markers (at 7 AM, then, after) and correct verb conjugations',
-        score: 4,
+        id: 's3-q3',
+        number: '03',
+        question: 'Why does Ali want to live near a school?',
+        targetFocus: 'Reason for location preference',
       },
       {
-        id: 'm1_sunday',
-        name: 'Sunday Morning Habits & Leisure Prepositions',
-        shortDesc: 'Activities with family/friends and frequency adverbs',
-        score: 3,
+        id: 's3-q4',
+        number: '04',
+        question: 'How much is the estimated monthly rent?',
+        targetFocus: 'Financial currency / price amount',
+      },
+      {
+        id: 's3-q5',
+        number: '05',
+        question: "Where do Hassan's children usually play?",
+        targetFocus: 'Local facility / recreational area',
+      },
+      {
+        id: 's3-q6',
+        number: '06',
+        question: "How far is the bus stop from Hassan's house?",
+        targetFocus: 'Walking distance / transit proximity',
+      },
+      {
+        id: 's3-q7',
+        number: '07',
+        question: 'How often do buses arrive during the day?',
+        targetFocus: 'Transit frequency / schedule interval',
+      },
+      {
+        id: 's3-q8',
+        number: '08',
+        question: 'When does Ali plan to visit the neighbourhood?',
+        targetFocus: 'Visit date / schedule plan',
+      },
+      {
+        id: 's3-q9',
+        number: '09',
+        question: 'Who will Ali bring with him?',
+        targetFocus: 'Accompanying persons',
+      },
+      {
+        id: 's3-q10',
+        number: '10',
+        question: 'How can Hassan help Ali find a house?',
+        targetFocus: 'Assistance / real estate connection',
       },
     ],
   },
   {
-    moduleId: 2,
-    moduleTitle: 'Module 2: Eliciting Information & Discussion',
-    allocatedTime: '15 Minutes',
-    aspects: [
+    id: 4,
+    title: 'Section 4',
+    topic: 'Town Flooding and Community Emergency',
+    audioPath: '/assets/aistudio/section4_af465140.mp3',
+    audioFilename: 'section4.mp3',
+    recordingFileRef: 'section4_af465140.mp3',
+    description: 'Listen to the emergency announcement regarding local flooding, safety precautions, shelter location, relief donations, and community meetings.',
+    questions: [
       {
-        id: 'm2_neighbor_q',
-        name: 'Subsection A: Neighbor Roleplay Question Formulation',
-        shortDesc: 'Forming natural inquiries (Where, When, How, Is there)',
-        score: 4,
+        id: 's4-q1',
+        number: '01',
+        question: 'What has caused flooding in the town?',
+        targetFocus: 'Cause of natural hazard / weather event',
       },
       {
-        id: 'm2_question_clarity',
-        name: 'Subsection A: Question Intelligibility & Pronunciation',
-        shortDesc: 'Correct question intonation and word pronunciation',
-        score: 4,
+        id: 's4-q2',
+        number: '02',
+        question: 'Which places should people avoid travelling through?',
+        targetFocus: 'Safety precautions / hazard zones',
       },
       {
-        id: 'm2_discussion_flow',
-        name: 'Subsection B: 5–7 Min Discussion on Weekend Habits',
-        shortDesc: 'Sharing personal thoughts on staying home vs going out',
-        score: 4,
+        id: 's4-q3',
+        number: '03',
+        question: 'Where should children not play?',
+        targetFocus: 'Child safety / dangerous areas',
       },
       {
-        id: 'm2_turn_taking',
-        name: 'Subsection B: Conversational Turn-Taking & Reasons',
-        shortDesc: 'Giving justifications and sustaining back-and-forth dialogue',
-        score: 3,
-      },
-    ],
-  },
-  {
-    moduleId: 3,
-    moduleTitle: 'Module 3: Extended Interactive Discussion',
-    allocatedTime: '30 Minutes',
-    aspects: [
-      {
-        id: 'm3_phone_tech',
-        name: 'Mobile Phone & Daily Communication Discussion',
-        shortDesc: 'Describing communication habits, apps used, and personal usage',
-        score: 4,
+        id: 's4-q4',
+        number: '04',
+        question: 'Where will the emergency shelter be located?',
+        targetFocus: 'Public relief venue / shelter address',
       },
       {
-        id: 'm3_internet_opinions',
-        name: 'Internet & Screen Time Opinion Expression',
-        shortDesc: 'Expressing viewpoints on whether people spend too much time online',
-        score: 3,
+        id: 's4-q5',
+        number: '05',
+        question: 'What three items can people donate to affected families?',
+        targetFocus: 'Essential relief items / charity supplies',
       },
       {
-        id: 'm3_hobbies',
-        name: 'Personal Hobbies & Origin Story Fluency',
-        shortDesc: 'Detailing interests, timeline, and explaining how hobbies began',
-        score: 4,
+        id: 's4-q6',
+        number: '06',
+        question: "Where is the emergency team's office?",
+        targetFocus: 'Official coordination office location',
       },
       {
-        id: 'm3_future_work',
-        name: 'Future of Technology in Workplace Speculation',
-        shortDesc: 'Projecting thoughts on future working habits with technology',
-        score: 4,
+        id: 's4-q7',
+        number: '07',
+        question: 'When will the next community meeting take place?',
+        targetFocus: 'Meeting schedule / date and time',
       },
     ],
   },
 ];
 
-export const QUICK_TAGS = [
-  'Clear pronunciation',
-  'Natural pace & flow',
-  'Good turn-taking',
-  'Accurate letter spelling',
-  'Understands simple question',
-  'Hesitation on past tense',
-  'Needs prompt repetition',
-  'Answers with full sentence',
-  'Rich vocabulary used'
+export const INITIAL_SECTION_ASSESSMENTS: SectionAssessment[] = [
+  {
+    sectionId: 1,
+    sectionTitle: 'Section 1: Family, Home and Daily Routine',
+    criteria: [
+      {
+        id: 'key_info',
+        name: 'Obtaining & Identifying Key Information',
+        subdesc: 'Extracting family facts, house bedrooms, children numbers',
+        score: 4,
+      },
+      {
+        id: 'context',
+        name: 'Understanding Spoken Context & Situation',
+        subdesc: 'Recognising family background and relocation motivation',
+        score: 4,
+      },
+      {
+        id: 'specific_details',
+        name: 'Extracting Specific Details & Routine Times',
+        subdesc: 'Identifying son age and mother visit frequency accurately',
+        score: 4,
+      },
+      {
+        id: 'comprehension',
+        name: 'Overall Listening Comprehension',
+        subdesc: 'Grasping natural speech flow without distortion',
+        score: 4,
+      },
+    ],
+  },
+  {
+    sectionId: 2,
+    sectionTitle: "Section 2: Making a Doctor's Appointment",
+    criteria: [
+      {
+        id: 'key_info',
+        name: 'Obtaining & Identifying Key Information',
+        subdesc: 'Capturing surname spelling, doctor preference, documents',
+        score: 4,
+      },
+      {
+        id: 'context',
+        name: 'Understanding Spoken Context & Situation',
+        subdesc: 'Interpreting clinical dialogue and reception instructions',
+        score: 4,
+      },
+      {
+        id: 'specific_details',
+        name: 'Extracting Specific Details & Appointment Times',
+        subdesc: 'Confirming exact consultation hour and required items',
+        score: 4,
+      },
+      {
+        id: 'comprehension',
+        name: 'Overall Listening Comprehension',
+        subdesc: 'Comprehending receptionist inquiries accurately',
+        score: 3,
+      },
+    ],
+  },
+  {
+    sectionId: 3,
+    sectionTitle: 'Section 3: Renting a House and the Neighbourhood',
+    criteria: [
+      {
+        id: 'key_info',
+        name: 'Obtaining & Identifying Key Information',
+        subdesc: 'Tracking rent prices, bedroom count, and bus schedule numbers',
+        score: 4,
+      },
+      {
+        id: 'context',
+        name: 'Understanding Spoken Context & Situation',
+        subdesc: 'Understanding community living, neighbourhood advice & school proximity',
+        score: 4,
+      },
+      {
+        id: 'specific_details',
+        name: 'Extracting Specific Details & Geographic Facts',
+        subdesc: 'Noting bus stop distance, children play areas, and visit dates',
+        score: 4,
+      },
+      {
+        id: 'comprehension',
+        name: 'Overall Listening Comprehension',
+        subdesc: 'Sustained listening accuracy across extended 10-item dialogue',
+        score: 4,
+      },
+    ],
+  },
+  {
+    sectionId: 4,
+    sectionTitle: 'Section 4: Town Flooding and Community Emergency',
+    criteria: [
+      {
+        id: 'key_info',
+        name: 'Obtaining & Identifying Key Information',
+        subdesc: 'Identifying flood causes, shelter location, office address',
+        score: 4,
+      },
+      {
+        id: 'context',
+        name: 'Understanding Spoken Context & Situation',
+        subdesc: 'Understanding emergency broadcast safety rules & hazard alerts',
+        score: 4,
+      },
+      {
+        id: 'specific_details',
+        name: 'Extracting Specific Details & Instructions',
+        subdesc: 'Noting donation items, travel avoidance areas, and meeting time',
+        score: 4,
+      },
+      {
+        id: 'comprehension',
+        name: 'Overall Listening Comprehension',
+        subdesc: 'Interpreting critical public announcements and safety instructions',
+        score: 4,
+      },
+    ],
+  },
+];
+
+export const LISTENING_QUICK_TAGS = [
+  'Accurate numerical extraction',
+  'Understood time & schedule',
+  'Recognised name & spelling',
+  'Understood relocation reason',
+  'Identified rent & bus frequency',
+  'Captured flood cause & hazards',
+  'Accurately noted shelter & office',
+  'Listened to donation list (3 items)',
+  'Accurate on first listen',
+  'Strong CEFR A1 comprehension',
 ];

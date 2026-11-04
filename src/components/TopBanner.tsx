@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Copy, Check, Clock, Play, Pause, RotateCcw, ClipboardCheck, Globe } from 'lucide-react';
+import {
+  ShieldCheck,
+  Copy,
+  Check,
+  Clock,
+  Play,
+  Pause,
+  RotateCcw,
+  ClipboardCheck,
+  Globe,
+  Headphones
+} from 'lucide-react';
 
 interface TopBannerProps {
   sessionID: string;
@@ -10,7 +21,6 @@ interface TopBannerProps {
   onToggleMasterTimer: () => void;
   onResetMasterTimer: () => void;
   onScrollToMarking: () => void;
-  allModulesCompleted?: boolean;
 }
 
 export const TopBanner: React.FC<TopBannerProps> = ({
@@ -22,7 +32,6 @@ export const TopBanner: React.FC<TopBannerProps> = ({
   onToggleMasterTimer,
   onResetMasterTimer,
   onScrollToMarking,
-  allModulesCompleted = false,
 }) => {
   const [copiedSession, setCopiedSession] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState(false);
@@ -61,7 +70,7 @@ export const TopBanner: React.FC<TopBannerProps> = ({
         <div className="flex items-center gap-2 font-semibold">
           <ShieldCheck className="w-4 h-4 text-emerald-300 shrink-0" />
           <span className="font-bold tracking-tight text-sm">
-            Vocal Vantage Secure Assessment Gateway | Live Speaking Session
+            Vocal Vantage Secure Assessment Gateway | Live Listening Session
           </span>
         </div>
 
@@ -107,7 +116,7 @@ export const TopBanner: React.FC<TopBannerProps> = ({
         </div>
       </div>
 
-      {/* Operational Header with Candidate Summary, 1 Main Session Timer, and Current Stage Indicator */}
+      {/* Operational Header with Candidate Summary, 1 Main Session Timer, and Assessment Type */}
       <div className="px-5 py-2.5 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-4">
         {/* Candidate & Stage Info */}
         <div className="flex items-center gap-3">
@@ -116,12 +125,13 @@ export const TopBanner: React.FC<TopBannerProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase font-bold text-[#720000] tracking-wider">
-                IELTS A1 Life Skills · Speaking Assessment
+              <span className="text-[11px] uppercase font-bold text-[#720000] tracking-wider flex items-center gap-1">
+                <Headphones className="w-3.5 h-3.5 text-[#720000]" />
+                <span>IELTS Life Skills A1 · Listening Assessment</span>
               </span>
               <span className="text-slate-300">·</span>
               <span className="text-xs text-slate-500 font-medium">
-                Live Proctoring & Assessment Session
+                4 Audio Sections (25 Questions)
               </span>
             </div>
             <div className="text-sm font-semibold text-slate-900 flex items-center gap-2">
@@ -140,7 +150,7 @@ export const TopBanner: React.FC<TopBannerProps> = ({
             <Clock className="w-4 h-4 text-[#800000]" />
             <div className="flex flex-col">
               <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
-                Overall Session Timer (1 Hour)
+                Overall Session Timer (60 Mins)
               </span>
               <span
                 className={`font-mono text-lg font-bold tabular-nums leading-none ${
@@ -161,7 +171,7 @@ export const TopBanner: React.FC<TopBannerProps> = ({
                 title={isMasterTimerRunning ? 'Pause Main Timer' : 'Start Main Timer'}
               >
                 {isMasterTimerRunning ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                <span>{isMasterTimerRunning ? 'Pause' : 'Start Main Timer'}</span>
+                <span>{isMasterTimerRunning ? 'Pause' : 'Start Timer'}</span>
               </button>
               <button
                 onClick={onResetMasterTimer}
@@ -173,18 +183,14 @@ export const TopBanner: React.FC<TopBannerProps> = ({
             </div>
           </div>
 
-          {/* Quick Jump to Bottom Instructor Marking Panel */}
+          {/* Quick Jump to Bottom Instructor Marking Portal */}
           <button
             onClick={onScrollToMarking}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
-              allModulesCompleted
-                ? 'bg-[#800000] border-[#800000] text-white shadow-xs animate-pulse hover:bg-[#660000]'
-                : 'bg-white border-slate-300 text-slate-800 hover:bg-slate-50 hover:border-[#800000]'
-            }`}
-            title="Scroll directly down to the Instructor Marking Panel at the end of the page"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer border bg-[#800000] border-[#800000] text-white hover:bg-[#660000] shadow-xs"
+            title="Scroll directly down to the Instructor Marking Portal at the end of the page"
           >
-            <ClipboardCheck className="w-4 h-4 text-[#800000]" />
-            <span>Instructor Marking Panel ↓</span>
+            <ClipboardCheck className="w-4 h-4 text-emerald-300" />
+            <span>Instructor Marking Portal ↓</span>
           </button>
         </div>
       </div>

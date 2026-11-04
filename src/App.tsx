@@ -8,8 +8,8 @@ import { TopBanner } from './components/TopBanner';
 import { CandidateInterface } from './components/CandidateInterface';
 import { InstructorPanel } from './components/InstructorPanel';
 import { AssessmentReportModal } from './components/AssessmentReportModal';
-import { ModuleA1Assessment } from './types';
-import { INITIAL_A1_MODULE_ASSESSMENTS } from './data/mockData';
+import { SectionAssessment } from './types';
+import { INITIAL_SECTION_ASSESSMENTS } from './data/mockData';
 
 export default function App() {
   // Fixed Candidate ID & Deployment URL Identifier as requested
@@ -21,12 +21,8 @@ export default function App() {
   const [masterSeconds, setMasterSeconds] = useState(3600);
   const [isMasterTimerRunning, setIsMasterTimerRunning] = useState(false);
 
-  // Module completion state tracking
-  const [completedModules, setCompletedModules] = useState<Record<number, boolean>>({
-    1: false,
-    2: false,
-    3: false,
-  });
+  // Candidate Answer Responses for the Listening Questions across Sections 1 to 4 (Empty for student input)
+  const [candidateAnswers, setCandidateAnswers] = useState<Record<string, string>>({});
 
   // Assessment Report Modal Open State
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -34,12 +30,12 @@ export default function App() {
   // Save Notification Banner
   const [saveAlertMessage, setSaveAlertMessage] = useState<string | null>(null);
 
-  // Module-Wise A1 Assessments (Module 1, Module 2, Module 3 with the 4 IELTS Life Skills A1 criteria)
-  const [assessments, setAssessments] = useState<ModuleA1Assessment[]>(INITIAL_A1_MODULE_ASSESSMENTS);
+  // Section-Wise Listening Assessments (Section 1, 2, 3, 4 with 4 criteria each)
+  const [assessments, setAssessments] = useState<SectionAssessment[]>(INITIAL_SECTION_ASSESSMENTS);
 
   // Instructor Remarks
   const [remarks, setRemarks] = useState(
-    `[09:05] Name spelled clearly letter-by-letter without hesitation.\n[09:12] Candidate gave strong daily routine description using time markers (at 7 AM, then, after).\n[09:22] Formulated authentic neighbor questions in Subsection A; engaged in a natural 6-minute conversation about weekend habits in Subsection B.`
+    `[09:05] Section 1: Successfully identified bedroom numbers, family relocation reason, and routine visit times.\n[09:18] Section 2: Accurately captured appointment time (10:30 AM) and surname spelling.\n[09:32] Section 3: Accurately identified rent estimate (£650), bedroom requirements, bus distance, and children play areas.\n[09:48] Section 4: Accurately extracted flood causes (heavy river rainfall), avoided travel zones, emergency shelter venue, and the 3 relief donation items.`
   );
 
   // Sync browser URL bar with the mock deployment route on mount
@@ -49,11 +45,11 @@ export default function App() {
         window.history.replaceState(null, '', `/${deploymentUrl}`);
       }
     } catch {
-      // Ignore in restricted environments
+      // Ignore in restricted iframe environments
     }
   }, [deploymentUrl]);
 
-  // Master Session Clock Ticker (1 Hour)
+  // Master Session Clock Ticker (60 Minutes)
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (isMasterTimerRunning) {
@@ -66,14 +62,6 @@ export default function App() {
     };
   }, [isMasterTimerRunning]);
 
-  const handleToggleModuleComplete = (modId: number) => {
-    setCompletedModules((prev) => ({ ...prev, [modId]: !prev[modId] }));
-  };
-
-  const handleMarkAllComplete = () => {
-    setCompletedModules({ 1: true, 2: true, 3: true });
-  };
-
   const scrollToMarkingPanel = () => {
     const el = document.getElementById('instructor-marking-panel');
     if (el) {
@@ -81,32 +69,52 @@ export default function App() {
     }
   };
 
-  // Real-time calculation whenever any 1-5 button is clicked
+  const handleUpdateAnswer = (questionId: string, answer: string) => {
+    setCandidateAnswers((prev) => ({
+      ...prev,
+      [questionId]: answer,
+    }));
+  };
+
+  // Real-time calculation whenever any 1-5 button is clicked in the Instructor Marking Portal
   const handleUpdateScore = (
-    moduleId: number,
-    criterionId: 'obtaining' | 'conveying' | 'speaking' | 'discussion',
+    sectionId: number,
+    criterionId: 'key_info' | 'context' | 'specific_details' | 'comprehension',
     score: number
   ) => {
     setAssessments((prev) =>
-      prev.map((mod) => {
-        if (mod.moduleId !== moduleId) return mod;
+      prev.map((sec) => {
+        if (sec.sectionId !== sectionId) return sec;
         return {
-          ...mod,
-          criteria: mod.criteria.map((c) => (c.id === criterionId ? { ...c, score } : c)),
+          ...sec,
+          criteria: sec.criteria.map((c) => (c.id === criterionId ? { ...c, score } : c)),
         };
       })
     );
   };
 
-  // Total Score Calculation: 4 criteria * 5 max = 20 pts/module. 3 modules = 60 pts overall.
+  // Total and Average Calculations
+  const totalCriteriaCount = assessments.reduce((acc, sec) => acc + sec.criteria.length, 0);
   const totalScore = assessments.reduce(
-    (acc, mod) => acc + mod.criteria.reduce((cAcc, curr) => cAcc + curr.score, 0),
+    (acc, sec) => acc + sec.criteria.reduce((cAcc, curr) => cAcc + curr.score, 0),
     0
   );
-  const isPassed = totalScore >= 36;
+  const maxScore = totalCriteriaCount * 5; // 80 points
+  const averageScore = totalCriteriaCount > 0 ? parseFloat((totalScore / totalCriteriaCount).toFixed(2)) : 0;
+  // PASS criteria: above 3.5 (average >= 3.5 out of 5)
+  const isPassed = averageScore >= 3.5;
 
-  const handleSaveReport = (summary: { name: string; totalScore: number; isPassed: boolean; resultText: string }) => {
-    setSaveAlertMessage(`Marking Report Saved: ${summary.name} · Score: ${summary.totalScore}/60 (${summary.isPassed ? 'PASS' : 'FAIL'})`);
+  const handleSaveReport = (summary: {
+    name: string;
+    totalScore: number;
+    maxScore: number;
+    averageScore: number;
+    isPassed: boolean;
+    resultText: string;
+  }) => {
+    setSaveAlertMessage(
+      `Marking Report Saved: ${summary.name} · Score: ${summary.totalScore}/${summary.maxScore} (Avg ${summary.averageScore}/5.0 - ${summary.isPassed ? 'PASS' : 'FAIL'})`
+    );
     setTimeout(() => {
       setSaveAlertMessage(null);
     }, 4500);
@@ -117,8 +125,6 @@ export default function App() {
     month: 'short',
     year: 'numeric',
   });
-
-  const allModulesDone = Boolean(completedModules[1] && completedModules[2] && completedModules[3]);
 
   return (
     <div className="relative min-h-screen bg-[#F8F9FA] text-[#1E293B] flex flex-col font-sans">
@@ -139,7 +145,6 @@ export default function App() {
           setMasterSeconds(3600);
         }}
         onScrollToMarking={scrollToMarkingPanel}
-        allModulesCompleted={allModulesDone}
       />
 
       {/* Floating Save Notification Alert */}
@@ -150,22 +155,21 @@ export default function App() {
         </div>
       )}
 
-      {/* Main Examination Page Layout */}
+      {/* Main Single Page: All 4 Sections followed by Instructor Marking Portal at the end */}
       <main className="flex-1 w-full max-w-[1720px] mx-auto flex flex-col relative z-10 px-3 md:px-6">
-        {/* TOP SECTION: Candidate Examination Presentation View (Kept Exactly as Specified) */}
-        <div className="w-full bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs my-4">
+        {/* 1 SINGLE MAIN PAGE: Candidate Listening Paper with Section 1, 2, 3, 4 stacked directly */}
+        <div className="w-full bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-2xs my-4">
           <CandidateInterface
             candidateName={candidateName}
             candidateId={sessionID}
             deploymentUrl={deploymentUrl}
+            candidateAnswers={candidateAnswers}
+            onUpdateAnswer={handleUpdateAnswer}
             onProceedToMarking={scrollToMarkingPanel}
-            completedModules={completedModules}
-            onToggleModuleComplete={handleToggleModuleComplete}
-            onMarkAllComplete={handleMarkAllComplete}
           />
         </div>
 
-        {/* BOTTOM SECTION: Advanced Instructor Live Marking Panel (Positioned at the Very End of the Webpage) */}
+        {/* BOTTOM SECTION: Advanced Instructor Live Marking Portal (Positioned at the Very End of the Webpage) */}
         <InstructorPanel
           candidateName={candidateName}
           onUpdateCandidateName={setCandidateName}
@@ -187,7 +191,8 @@ export default function App() {
         deploymentUrl={deploymentUrl}
         assessments={assessments}
         totalScore={totalScore}
-        maxScore={60}
+        maxScore={maxScore}
+        averageScore={averageScore}
         isPassed={isPassed}
         notes={remarks}
         examDate={currentDate}

@@ -7,23 +7,34 @@ import {
   FileCheck2,
   MessageSquare,
   Award,
-  Sparkles,
   ClipboardList,
   Check,
   TrendingUp,
-  Percent
+  Headphones,
+  Info
 } from 'lucide-react';
-import { ModuleA1Assessment } from '../types';
-import { QUICK_TAGS } from '../data/mockData';
+import { SectionAssessment } from '../types';
+import { LISTENING_QUICK_TAGS } from '../data/mockData';
 
 interface InstructorPanelProps {
   candidateName: string;
   onUpdateCandidateName: (name: string) => void;
-  assessments: ModuleA1Assessment[];
-  onUpdateScore: (moduleId: number, criterionId: 'obtaining' | 'conveying' | 'speaking' | 'discussion', score: number) => void;
+  assessments: SectionAssessment[];
+  onUpdateScore: (
+    sectionId: number,
+    criterionId: 'key_info' | 'context' | 'specific_details' | 'comprehension',
+    score: number
+  ) => void;
   remarks: string;
   onUpdateRemarks: (notes: string) => void;
-  onSaveReport: (reportSummary: { name: string; totalScore: number; isPassed: boolean; resultText: string }) => void;
+  onSaveReport: (reportSummary: {
+    name: string;
+    totalScore: number;
+    maxScore: number;
+    averageScore: number;
+    isPassed: boolean;
+    resultText: string;
+  }) => void;
   onOpenCertificateModal?: () => void;
 }
 
@@ -37,17 +48,18 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
   onSaveReport,
   onOpenCertificateModal,
 }) => {
-  // Real-time calculation: 4 criteria * 5 points = 20 max per module. 3 modules = 60 max overall.
-  const moduleTotals = assessments.map((mod) => ({
-    moduleId: mod.moduleId,
-    score: mod.criteria.reduce((acc, curr) => acc + curr.score, 0),
-    max: 20,
-  }));
+  // 4 sections x 4 criteria = 16 criteria total. Max score = 16 x 5 = 80 points.
+  const totalCriteriaCount = assessments.reduce((acc, sec) => acc + sec.criteria.length, 0);
+  const totalScore = assessments.reduce(
+    (acc, sec) => acc + sec.criteria.reduce((cAcc, curr) => cAcc + curr.score, 0),
+    0
+  );
+  const maxScore = totalCriteriaCount * 5; // 80 points
+  const averageScore = totalCriteriaCount > 0 ? parseFloat((totalScore / totalCriteriaCount).toFixed(2)) : 0;
+  const percentage = Math.round((totalScore / maxScore) * 100);
 
-  const totalScore = moduleTotals.reduce((acc, curr) => acc + curr.score, 0);
-  const maxOverallScore = 60;
-  const isPassed = totalScore >= 36;
-  const percentage = Math.round((totalScore / maxOverallScore) * 100);
+  // Auto Pass/Fail Logic: Any average score >= 3.5 out of 5.0 is PASS
+  const isPassed = averageScore >= 3.5;
 
   const handleInsertTag = (tag: string) => {
     const timeStamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -61,21 +73,22 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
       ? 'Result: PASS (CEFR A1 / IELTS Band 2.0 - 2.5 Equivalent)'
       : 'Result: FAIL (Below A1 Standard)';
 
-    // Trigger browser alert as requested
-    const alertMessage = `----------------------------------------\nVOCAL VANTAGE | OFFICIAL MARKING REPORT\n----------------------------------------\nCandidate Name: ${candidate}\nTotal Score: ${totalScore} / ${maxOverallScore} (${percentage}%)\nFinal Verdict: ${resultText}\n----------------------------------------`;
-    
+    // Trigger browser alert as explicitly requested
+    const alertMessage = `----------------------------------------\nVOCAL VANTAGE | INSTRUCTOR MARKING PORTAL\n----------------------------------------\nCandidate Name: ${candidate}\nTotal Listening Score: ${totalScore} / ${maxScore}\nAverage Score: ${averageScore} / 5.00 (${percentage}%)\nPassing Criteria: Above 3.5 is PASS\nFinal Verdict: ${resultText}\n----------------------------------------`;
+
     try {
       if (typeof window !== 'undefined' && typeof window.alert === 'function') {
         window.alert(alertMessage);
       }
     } catch {
-      // In case iframe sandboxing blocks window.alert
       console.log(alertMessage);
     }
 
     onSaveReport({
       name: candidate,
       totalScore,
+      maxScore,
+      averageScore,
       isPassed,
       resultText,
     });
@@ -85,7 +98,7 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
     <section
       id="instructor-marking-panel"
       className="w-full bg-[#FAFAFA] border-t-4 border-[#800000] text-slate-900 pt-8 pb-14 px-4 sm:px-6 lg:px-8 mt-12 scroll-mt-20"
-      aria-label="Advanced Instructor Live Marking Panel"
+      aria-label="Advanced Instructor Live Marking Portal"
     >
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Panel Section Header */}
@@ -100,16 +113,16 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
               </span>
               <span className="text-slate-300">·</span>
               <span className="text-xs text-slate-500 font-semibold">
-                Official IELTS Life Skills A1 Standard
+                Official IELTS Life Skills A1 Listening Assessment
               </span>
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight flex items-center gap-3">
               <ClipboardList className="w-7 h-7 text-[#800000]" />
-              <span>Advanced Instructor Live Marking Panel</span>
+              <span>Instructor Marking Portal</span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
-              Real-time auto-calculating assessment form across Module 1, Module 2, and Module 3. Select 1 to 5 for each of the four official Life Skills criteria.
+              Real-time auto-calculating assessment form across Section 1, 2, 3, and 4. Select 1 to 5 for each listening comprehension criterion.
             </p>
           </div>
 
@@ -123,11 +136,13 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
                 <span className="font-mono text-3xl font-black text-[#800000]">
                   {totalScore}
                 </span>
-                <span className="font-mono text-sm font-bold text-slate-400">/ 60</span>
+                <span className="font-mono text-sm font-bold text-slate-400">/ {maxScore}</span>
               </div>
-              <span className="text-[11px] font-semibold text-slate-500 mt-0.5">
-                {percentage}% of maximum
-              </span>
+              <div className="flex items-center gap-1.5 mt-0.5 font-mono text-xs">
+                <span className="text-slate-700 font-bold">Avg: {averageScore} / 5.0</span>
+                <span className="text-slate-400">·</span>
+                <span className="text-slate-500">{percentage}%</span>
+              </div>
             </div>
             <div className="h-12 w-px bg-slate-200" />
             <div className="text-right">
@@ -141,9 +156,24 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
                     : 'bg-rose-100 text-rose-900 border border-rose-300'
                 }`}
               >
-                {isPassed ? 'PASS (≥ 36)' : 'FAIL (< 36)'}
+                {isPassed ? 'PASS (≥ 3.5)' : 'FAIL (< 3.5)'}
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* Passing Criteria Banner explicitly placed above grading sections */}
+        <div className="bg-emerald-50 border-2 border-emerald-400 rounded-2xl p-4 sm:p-5 shadow-2xs flex items-start sm:items-center gap-4 text-emerald-950">
+          <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0 shadow-xs">
+            <Info className="w-5 h-5" />
+          </div>
+          <div className="flex-1">
+            <div className="text-xs font-bold uppercase tracking-wider text-emerald-800">
+              Official IELTS Life Skills A1 Listening Passing Criteria
+            </div>
+            <p className="text-xs sm:text-sm font-semibold text-emerald-950 mt-0.5 leading-relaxed">
+              <strong>Passing Benchmark:</strong> Any overall average score <strong>above 3.5 / 5.0</strong> (≥ 70% or total score ≥ 56/80) is classified as an automated <strong>PASS</strong>. Candidate scores below 3.5 are classified as <strong>FAIL</strong> requiring re-take.
+            </p>
           </div>
         </div>
 
@@ -180,80 +210,81 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
             <div className="sm:col-span-4 bg-slate-50 border border-slate-200 p-3 rounded-xl flex items-center justify-between text-xs">
               <div>
                 <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-                  Session Level
+                  Test Format
                 </span>
-                <span className="font-bold text-slate-800">IELTS Life Skills A1</span>
+                <span className="font-bold text-slate-800">Life Skills A1 Listening</span>
               </div>
               <div className="text-right">
                 <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
-                  Pass Threshold
+                  Automated Threshold
                 </span>
-                <span className="font-bold text-emerald-700 font-mono">36 / 60 (60%)</span>
+                <span className="font-bold text-emerald-700 font-mono">≥ 3.5 Avg Score</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 2. Module-Wise Grading Sections (Three Distinct Card Sections) */}
+        {/* 2. Section-Wise Grading Sections (Four Distinct Cards) */}
         <div>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
             <div>
               <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <Award className="w-5 h-5 text-[#800000]" />
-                <span>2. Module-Wise Grading Sections</span>
+                <span>2. Section-Wise Listening Assessment Matrix</span>
               </h3>
               <p className="text-xs text-slate-500">
-                Four official IELTS Life Skills A1 criteria per module (Scale: 1 = Poor, 5 = Excellent). Click any tile to select.
+                Four official listening criteria per section (Scale: 1 = Poor, 5 = Excellent). Click any tile to select and score in maroon.
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs font-mono text-slate-500 font-semibold bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-2xs self-start sm:self-auto">
-              <span>Max: 20 pts per module</span>
+              <span>Max: 20 pts per section</span>
               <span>·</span>
-              <span className="text-[#800000] font-bold">Total: 60 pts</span>
+              <span className="text-[#800000] font-bold">Overall: 80 pts</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {assessments.map((mod) => {
-              const modScore = mod.criteria.reduce((acc, curr) => acc + curr.score, 0);
-              const modPercentage = Math.round((modScore / 20) * 100);
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {assessments.map((sec) => {
+              const secScore = sec.criteria.reduce((acc, curr) => acc + curr.score, 0);
+              const secAvg = (secScore / sec.criteria.length).toFixed(1);
+              const secPercentage = Math.round((secScore / 20) * 100);
 
               return (
                 <div
-                  key={mod.moduleId}
-                  className="bg-white border-2 border-slate-200 hover:border-[#800000]/40 transition-colors rounded-2xl p-5 shadow-2xs flex flex-col justify-between space-y-5"
+                  key={sec.sectionId}
+                  className="bg-white border-2 border-slate-200 hover:border-[#800000]/40 transition-colors rounded-2xl p-6 shadow-2xs flex flex-col justify-between space-y-5"
                 >
                   {/* Card Header */}
                   <div className="pb-3 border-b-2 border-slate-100">
                     <div className="flex items-center justify-between gap-2 mb-1">
                       <span className="text-[10px] font-mono font-extrabold uppercase tracking-wider text-[#800000] bg-[#800000]/10 px-2.5 py-0.5 rounded-full">
-                        Module 0{mod.moduleId}
+                        Section 0{sec.sectionId} Assessment
                       </span>
                       <span className="text-xs font-mono font-bold text-slate-500">
-                        {mod.allocatedTime}
+                        Avg: {secAvg} / 5.0
                       </span>
                     </div>
 
                     <h4 className="text-base font-extrabold text-slate-950 leading-snug">
-                      {mod.moduleName}
+                      {sec.sectionTitle}
                     </h4>
 
-                    {/* Module Score Counter */}
+                    {/* Section Score Counter */}
                     <div className="mt-3 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl flex items-center justify-between">
                       <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                        Module Score:
+                        Section Score:
                       </span>
                       <div className="flex items-baseline gap-1 font-mono">
-                        <span className="text-lg font-black text-[#800000]">{modScore}</span>
+                        <span className="text-lg font-black text-[#800000]">{secScore}</span>
                         <span className="text-xs font-bold text-slate-400">/ 20</span>
-                        <span className="text-[10px] text-slate-500 ml-1">({modPercentage}%)</span>
+                        <span className="text-[10px] text-slate-500 ml-1">({secPercentage}%)</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* 4 Official IELTS Life Skills Criteria */}
+                  {/* 4 Official Listening Criteria */}
                   <div className="space-y-4 flex-1">
-                    {mod.criteria.map((crit) => (
+                    {sec.criteria.map((crit) => (
                       <div
                         key={crit.id}
                         className="p-3 bg-slate-50/80 border border-slate-200 rounded-xl space-y-2 hover:bg-slate-50 transition-colors"
@@ -280,7 +311,7 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
                               <button
                                 key={val}
                                 type="button"
-                                onClick={() => onUpdateScore(mod.moduleId, crit.id, val)}
+                                onClick={() => onUpdateScore(sec.sectionId, crit.id, val)}
                                 className={`py-2 px-1 rounded-xl text-xs font-bold transition-all flex flex-col items-center justify-center cursor-pointer ${
                                   isSelected
                                     ? 'bg-[#800000] text-white shadow-sm ring-2 ring-[#800000]/30 scale-102 font-black'
@@ -305,7 +336,7 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
                     <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
                       <div
                         className="bg-[#800000] h-full transition-all duration-300"
-                        style={{ width: `${(modScore / 20) * 100}%` }}
+                        style={{ width: `${(secScore / 20) * 100}%` }}
                       />
                     </div>
                   </div>
@@ -320,15 +351,15 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
           <div className="flex items-center justify-between border-b border-slate-200 pb-4">
             <span className="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
               <TrendingUp className="w-4 h-4 text-[#800000]" />
-              <span>3. Live Score Calculation & Official Band Mapping</span>
+              <span>3. Live Score Calculation & Automated CEFR A1 Band Mapping</span>
             </span>
             <span className="text-xs font-mono text-slate-400">
-              4 criteria × 5 pts = 20 pts/module · 3 modules = 60 pts max
+              Benchmark: Average &gt; 3.5 = PASS
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-            {/* Live Score Display: Highly Visible Total */}
+            {/* Live Score Display */}
             <div className="md:col-span-5 bg-slate-50 border-2 border-slate-200 rounded-2xl p-5 flex flex-col justify-center">
               <span className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
                 Live Cumulative Score
@@ -338,7 +369,15 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
                   Total Score: {totalScore}
                 </span>
                 <span className="font-mono text-xl sm:text-2xl font-bold text-slate-400">
-                  / 60
+                  / {maxScore}
+                </span>
+              </div>
+              <div className="flex items-center gap-3 mt-2 text-xs font-mono">
+                <span className="text-slate-800 font-bold bg-white px-2.5 py-1 rounded border border-slate-200">
+                  Average: <strong>{averageScore}</strong> / 5.0
+                </span>
+                <span className="text-slate-500">
+                  Percentage: <strong>{percentage}%</strong>
                 </span>
               </div>
               <div className="mt-3 flex items-center gap-2">
@@ -356,7 +395,7 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
               </div>
             </div>
 
-            {/* Dynamic Pass/Fail Badge (Prominent Green or Red as specified) */}
+            {/* Dynamic Pass/Fail Badge */}
             <div className="md:col-span-7">
               {isPassed ? (
                 <div className="bg-emerald-50 border-3 border-emerald-500 rounded-2xl p-5 shadow-sm text-emerald-950 flex items-start sm:items-center gap-4 transition-all">
@@ -365,13 +404,13 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
                   </div>
                   <div className="flex-1">
                     <div className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-800">
-                      Official Candidate Assessment Verdict
+                      Automated Assessment Verdict
                     </div>
                     <div className="text-lg sm:text-xl font-black text-emerald-950 tracking-tight leading-snug mt-0.5">
                       Result: PASS (CEFR A1 / IELTS Band 2.0 - 2.5 Equivalent)
                     </div>
                     <p className="text-xs text-emerald-900 font-medium mt-1 leading-relaxed">
-                      Score of <strong>{totalScore}/60</strong> meets or exceeds the 36-point benchmark (60%). Candidate satisfies the English speaking proficiency required for IELTS Life Skills A1.
+                      Average score of <strong>{averageScore} / 5.0</strong> ({totalScore}/{maxScore}) exceeds the 3.5 benchmark. Candidate satisfies the English listening comprehension required for IELTS Life Skills A1.
                     </p>
                   </div>
                 </div>
@@ -382,13 +421,13 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
                   </div>
                   <div className="flex-1">
                     <div className="text-[10px] font-extrabold uppercase tracking-widest text-rose-800">
-                      Official Candidate Assessment Verdict
+                      Automated Assessment Verdict
                     </div>
                     <div className="text-lg sm:text-xl font-black text-rose-950 tracking-tight leading-snug mt-0.5">
                       Result: FAIL (Below A1 Standard)
                     </div>
                     <p className="text-xs text-rose-900 font-medium mt-1 leading-relaxed">
-                      Score of <strong>{totalScore}/60</strong> is below the mandatory 36-point benchmark. Candidate requires additional oral coaching to reach the minimum A1 threshold.
+                      Average score of <strong>{averageScore} / 5.0</strong> ({totalScore}/{maxScore}) is below the mandatory 3.5 benchmark. Candidate requires additional listening drills to achieve A1 qualification.
                     </p>
                   </div>
                 </div>
@@ -402,7 +441,7 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
           <div className="flex items-center justify-between border-b border-slate-200 pb-3">
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
               <MessageSquare className="w-4 h-4 text-[#800000]" />
-              <span>4. Examiner Notes & Official Export</span>
+              <span>4. Instructor Remarks & Live Feedback</span>
             </h3>
             <span className="text-xs font-mono text-slate-400">
               {remarks.length} characters
@@ -412,10 +451,10 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
           {/* Quick Tags for Instant Annotation */}
           <div>
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block mb-2">
-              Quick Observation Stamps:
+              Listening Quick Observation Stamps:
             </span>
             <div className="flex flex-wrap gap-2">
-              {QUICK_TAGS.map((tag, idx) => (
+              {LISTENING_QUICK_TAGS.map((tag, idx) => (
                 <button
                   key={idx}
                   type="button"
@@ -441,7 +480,7 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
               rows={5}
               value={remarks}
               onChange={(e) => onUpdateRemarks(e.target.value)}
-              placeholder="Record real-time oral feedback, specific lexical strengths, pronunciation notes, or areas of development during the live session..."
+              placeholder="Record candidate listening comprehension strengths, numerical retention, timeline understanding, or areas for development during the session..."
               className="w-full text-xs sm:text-sm p-4 bg-slate-50 border-2 border-slate-300 rounded-2xl focus:bg-white focus:outline-hidden focus:border-[#800000] focus:ring-2 focus:ring-[#800000]/20 text-slate-900 font-mono leading-relaxed transition-all shadow-inner"
             />
           </div>
@@ -449,7 +488,7 @@ export const InstructorPanel: React.FC<InstructorPanelProps> = ({
           {/* Actions: Large Maroon Primary Button "Save Marking Report" & View Certificate */}
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-xs text-slate-500 text-center sm:text-left">
-              Saving triggers browser verification and compiles candidate's official IELTS Life Skills report.
+              Saving triggers browser verification and compiles candidate's official IELTS Life Skills Listening report.
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">

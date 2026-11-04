@@ -5,10 +5,9 @@ import {
   Copy,
   Check,
   ShieldCheck,
-  Award,
-  FileCheck2
+  Headphones
 } from 'lucide-react';
-import { ModuleA1Assessment } from '../types';
+import { SectionAssessment } from '../types';
 
 interface AssessmentReportModalProps {
   isOpen: boolean;
@@ -16,9 +15,10 @@ interface AssessmentReportModalProps {
   candidateName: string;
   sessionID: string;
   deploymentUrl?: string;
-  assessments: ModuleA1Assessment[];
+  assessments: SectionAssessment[];
   totalScore: number;
   maxScore?: number;
+  averageScore?: number;
   isPassed: boolean;
   notes: string;
   examDate: string;
@@ -32,7 +32,8 @@ export const AssessmentReportModal: React.FC<AssessmentReportModalProps> = ({
   deploymentUrl = 'Mock-LM-VV-A1-13789JH',
   assessments,
   totalScore,
-  maxScore = 60,
+  maxScore = 80,
+  averageScore = 4.0,
   isPassed,
   notes,
   examDate,
@@ -54,23 +55,24 @@ export const AssessmentReportModal: React.FC<AssessmentReportModalProps> = ({
     const reportText = `
 ===================================================
 VOCAL VANTAGE SECURE ASSESSMENT GATEWAY
-OFFICIAL IELTS A1 LIFE SKILLS SPEAKING REPORT
+OFFICIAL IELTS A1 LIFE SKILLS LISTENING REPORT
 ===================================================
 Session ID: ${sessionID}
 Date: ${examDate}
 Candidate Name: ${candidateName || 'Miss Aamra'}
 Reference URL: ${deploymentUrl}
-CEFR Standard: IELTS Life Skills A1
+CEFR Standard: IELTS Life Skills A1 Listening
 Final Outcome: ${isPassed ? 'PASS' : 'FAIL'}
-Overall Cumulative Score: ${totalScore} / ${maxScore} (${percentage}%)
+Overall Score: ${totalScore} / ${maxScore} (${percentage}%)
+Average Score: ${averageScore} / 5.0 (Passing Benchmark: Above 3.5)
 Verdict: ${verdictText}
 
-MODULE-WISE CRITERIA BREAKDOWN:
+SECTION-WISE CRITERIA BREAKDOWN:
 ${assessments
   .map(
-    (mod) =>
-      `\n[${mod.moduleName}] (Subtotal: ${mod.criteria.reduce((a, b) => a + b.score, 0)}/20):\n` +
-      mod.criteria.map((c) => `  - ${c.name}: ${c.score}/5 (${c.subdesc})`).join('\n')
+    (sec) =>
+      `\n[${sec.sectionTitle}] (Subtotal: ${sec.criteria.reduce((a, b) => a + b.score, 0)}/20):\n` +
+      sec.criteria.map((c) => `  - ${c.name}: ${c.score}/5 (${c.subdesc})`).join('\n')
   )
   .join('\n')}
 
@@ -137,8 +139,9 @@ Vocal Vantage Accredited Assessment System
                   <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#800000] uppercase font-mono leading-none">
                     Vocal Vantage
                   </h1>
-                  <p className="text-[11px] font-bold text-slate-600 tracking-wider uppercase mt-1">
-                    Secure Assessment Gateway · IELTS Life Skills A1 Speaking Test Report
+                  <p className="text-[11px] font-bold text-slate-600 tracking-wider uppercase mt-1 flex items-center gap-1.5">
+                    <Headphones className="w-3.5 h-3.5 text-[#800000]" />
+                    <span>Secure Assessment Gateway · IELTS Life Skills A1 Listening Test Report</span>
                   </p>
                 </div>
               </div>
@@ -182,17 +185,17 @@ Vocal Vantage Accredited Assessment System
               </div>
               <div>
                 <span className="text-[9px] uppercase font-bold text-slate-400 block tracking-wider">
-                  CEFR Standard
+                  Assessment Standard
                 </span>
                 <span className="font-bold text-[#800000] text-xs block">
-                  IELTS Life Skills A1
+                  IELTS Life Skills A1 Listening
                 </span>
               </div>
             </div>
 
             {/* Main Landscape 2-Column Split */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 my-1 flex-1 items-stretch">
-              {/* Left Column (7 of 12 columns = 58% width) */}
+              {/* Left Column */}
               <div className="lg:col-span-7 flex flex-col justify-between space-y-3">
                 {/* Official Verdict Banner */}
                 <div
@@ -204,7 +207,7 @@ Vocal Vantage Accredited Assessment System
                 >
                   <div>
                     <span className="text-[10px] uppercase font-bold tracking-wider opacity-80 block">
-                      Official Examination Outcome
+                      Official Automated Verdict (Criteria: &gt; 3.5 Average is PASS)
                     </span>
                     <div className="text-base sm:text-lg font-black tracking-tight leading-snug mt-0.5">
                       {isPassed
@@ -213,8 +216,8 @@ Vocal Vantage Accredited Assessment System
                     </div>
                     <p className="text-[11px] mt-1 opacity-90 leading-tight">
                       {isPassed
-                        ? `Candidate attained ${totalScore}/60 points (benchmark ≥ 36), satisfying CEFR A1 communicative competency.`
-                        : `Candidate attained ${totalScore}/60 points (below 36 benchmark). Recommended for continued oral drills.`}
+                        ? `Candidate attained average score of ${averageScore}/5.0 (${totalScore}/${maxScore} points), exceeding the 3.5 benchmark.`
+                        : `Candidate attained average score of ${averageScore}/5.0 (below 3.5 benchmark). Additional practice recommended.`}
                     </p>
                   </div>
 
@@ -230,66 +233,71 @@ Vocal Vantage Accredited Assessment System
                   </div>
                 </div>
 
-                {/* Module-Wise Criteria Matrix Table */}
+                {/* Section-Wise Criteria Matrix Table */}
                 <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead className="bg-slate-100 text-slate-700 border-b border-slate-200">
                       <tr>
-                        <th className="py-2 px-3 font-bold text-[10px]">IELTS Life Skills A1 Criteria</th>
-                        <th className="py-2 px-2 text-center font-bold text-[10px]">M1 (15m)</th>
-                        <th className="py-2 px-2 text-center font-bold text-[10px]">M2 (15m)</th>
-                        <th className="py-2 px-2 text-center font-bold text-[10px]">M3 (30m)</th>
-                        <th className="py-2 px-3 text-right font-bold text-[10px]">Criterion Total</th>
+                        <th className="py-2 px-3 font-bold text-[10px]">IELTS Life Skills Listening Criteria</th>
+                        <th className="py-2 px-1 text-center font-bold text-[10px]">Sec 1</th>
+                        <th className="py-2 px-1 text-center font-bold text-[10px]">Sec 2</th>
+                        <th className="py-2 px-1 text-center font-bold text-[10px]">Sec 3</th>
+                        <th className="py-2 px-1 text-center font-bold text-[10px]">Sec 4</th>
+                        <th className="py-2 px-2 text-right font-bold text-[10px]">Total</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200">
                       {[
-                        { id: 'obtaining', name: 'Obtaining Information', desc: 'Understanding questions/instructions' },
-                        { id: 'conveying', name: 'Conveying Information', desc: 'Sharing basic facts, feelings, opinions' },
-                        { id: 'speaking', name: 'Speaking to Communicate', desc: 'Clarity, pronunciation, basic vocabulary' },
-                        { id: 'discussion', name: 'Engaging in Discussion', desc: 'Interacting, keeping the conversation going' },
+                        { id: 'key_info', name: 'Identifying Key Information' },
+                        { id: 'context', name: 'Understanding Context & Situation' },
+                        { id: 'specific_details', name: 'Specific Details & Reasons' },
+                        { id: 'comprehension', name: 'Overall Listening Accuracy' },
                       ].map((criterion) => {
-                        const m1Score = assessments[0]?.criteria.find((c) => c.id === criterion.id)?.score || 0;
-                        const m2Score = assessments[1]?.criteria.find((c) => c.id === criterion.id)?.score || 0;
-                        const m3Score = assessments[2]?.criteria.find((c) => c.id === criterion.id)?.score || 0;
-                        const rowTotal = m1Score + m2Score + m3Score;
+                        const s1Score = assessments[0]?.criteria.find((c) => c.id === criterion.id)?.score || 0;
+                        const s2Score = assessments[1]?.criteria.find((c) => c.id === criterion.id)?.score || 0;
+                        const s3Score = assessments[2]?.criteria.find((c) => c.id === criterion.id)?.score || 0;
+                        const s4Score = assessments[3]?.criteria.find((c) => c.id === criterion.id)?.score || 0;
+                        const rowTotal = s1Score + s2Score + s3Score + s4Score;
 
                         return (
                           <tr key={criterion.id} className="hover:bg-slate-50">
                             <td className="py-1.5 px-3">
                               <div className="font-bold text-slate-900 text-xs">{criterion.name}</div>
-                              <div className="text-[10px] text-slate-500 truncate max-w-[240px]">
-                                {criterion.desc}
-                              </div>
                             </td>
-                            <td className="py-1.5 px-2 text-center font-mono font-bold text-slate-700">
-                              {m1Score}/5
+                            <td className="py-1.5 px-1 text-center font-mono font-bold text-slate-700">
+                              {s1Score}/5
                             </td>
-                            <td className="py-1.5 px-2 text-center font-mono font-bold text-slate-700">
-                              {m2Score}/5
+                            <td className="py-1.5 px-1 text-center font-mono font-bold text-slate-700">
+                              {s2Score}/5
                             </td>
-                            <td className="py-1.5 px-2 text-center font-mono font-bold text-slate-700">
-                              {m3Score}/5
+                            <td className="py-1.5 px-1 text-center font-mono font-bold text-slate-700">
+                              {s3Score}/5
                             </td>
-                            <td className="py-1.5 px-3 text-right font-mono font-bold text-[#800000]">
-                              {rowTotal} / 15
+                            <td className="py-1.5 px-1 text-center font-mono font-bold text-slate-700">
+                              {s4Score}/5
+                            </td>
+                            <td className="py-1.5 px-2 text-right font-mono font-bold text-[#800000]">
+                              {rowTotal} / 20
                             </td>
                           </tr>
                         );
                       })}
                       <tr className="bg-slate-50 font-bold border-t border-slate-200">
-                        <td className="py-2 px-3 text-slate-800 text-xs">Module Subtotals:</td>
-                        <td className="py-2 px-2 text-center font-mono text-[#800000] text-xs">
+                        <td className="py-2 px-3 text-slate-800 text-xs">Section Subtotals:</td>
+                        <td className="py-2 px-1 text-center font-mono text-[#800000] text-xs">
                           {assessments[0]?.criteria.reduce((a, b) => a + b.score, 0)}/20
                         </td>
-                        <td className="py-2 px-2 text-center font-mono text-[#800000] text-xs">
+                        <td className="py-2 px-1 text-center font-mono text-[#800000] text-xs">
                           {assessments[1]?.criteria.reduce((a, b) => a + b.score, 0)}/20
                         </td>
-                        <td className="py-2 px-2 text-center font-mono text-[#800000] text-xs">
+                        <td className="py-2 px-1 text-center font-mono text-[#800000] text-xs">
                           {assessments[2]?.criteria.reduce((a, b) => a + b.score, 0)}/20
                         </td>
-                        <td className="py-2 px-3 text-right font-mono text-base font-black text-[#800000]">
-                          Total: {totalScore} / 60
+                        <td className="py-2 px-1 text-center font-mono text-[#800000] text-xs">
+                          {assessments[3]?.criteria.reduce((a, b) => a + b.score, 0)}/20
+                        </td>
+                        <td className="py-2 px-2 text-right font-mono text-sm font-black text-[#800000]">
+                          {totalScore} / {maxScore}
                         </td>
                       </tr>
                     </tbody>
@@ -297,7 +305,7 @@ Vocal Vantage Accredited Assessment System
                 </div>
               </div>
 
-              {/* Right Column (5 of 12 columns = 42% width) */}
+              {/* Right Column */}
               <div className="lg:col-span-5 flex flex-col justify-between space-y-3">
                 {/* Live Observation Notes Box */}
                 <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex-1 flex flex-col">
@@ -305,7 +313,7 @@ Vocal Vantage Accredited Assessment System
                     Instructor Remarks & Feedback
                   </span>
                   <div className="p-2.5 bg-white border border-slate-200 rounded-lg text-[11px] text-slate-800 font-mono whitespace-pre-wrap leading-relaxed flex-1 overflow-y-auto max-h-[140px]">
-                    {notes.trim() || 'No specific notes recorded during this session.'}
+                    {notes.trim() || 'Candidate demonstrated consistent auditory comprehension across all 4 recordings.'}
                   </div>
                 </div>
 
